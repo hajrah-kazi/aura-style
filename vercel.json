@@ -1,0 +1,6 @@
+{
+    "version": 2,
+    "buildCommand": "cd client-pro && npm install && npm run build",
+    "outputDirectory": "client-pro/.next",
+    "installCommand": "cd client-pro && npm install"
+}

@@ -2,5 +2,11 @@
     "version": 2,
     "buildCommand": "cd client-pro && npm install && npm run build",
     "outputDirectory": "client-pro/.next",
-    "installCommand": "cd client-pro && npm install"
+    "installCommand": "cd client-pro && npm install",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/client-pro/$1"
+        }
+    ]
 }

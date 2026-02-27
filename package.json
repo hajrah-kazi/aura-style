@@ -1,0 +1,10 @@
+{
+    "name": "aurastyle-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "build": "npm run build --prefix client-pro",
+        "install": "npm install --prefix client-pro",
+        "start": "npm start --prefix client-pro"
+    }
+}

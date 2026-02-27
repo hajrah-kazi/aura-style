@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: aurastyle_db
+    environment:
+      POSTGRES_DB: aurastyle
+      POSTGRES_USER: aurastyle_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aurastyle_user -d aurastyle"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aurastyle_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: aurastyle_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aurastyle_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: aurastyle_backend
+    environment:
+      - DATABASE_URL=postgresql://aurastyle_user:${DB_PASSWORD:-changeme123}@db:5432/aurastyle
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-super_secret_key_change_in_production}
+      - ENVIRONMENT=development
+      - DEBUG=true
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server:/app
+    networks:
+      - aurastyle_network
+    restart: unless-stopped
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./client-pro
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: aurastyle_frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - aurastyle_network
+    restart: unless-stopped
+
+networks:
+  aurastyle_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -13,7 +13,7 @@ echo [2/3] Starting Backend Server...
 start "AuraStyle Backend" cmd /k "cd server && set PYTHONPATH=. && venv-pro\Scripts\python -m uvicorn app.main:app --reload"
 
 echo [3/3] Starting Modern Frontend...
-start "AuraStyle Frontend" cmd /k "cd client-pro && npm install && npm run dev"
+start "AuraStyle Frontend" cmd /k "npm install && npm run dev"
 
 echo ==========================================
 echo SERVICES RUNNING:
